@@ -27,7 +27,8 @@ def score(game_rolls):
         result += get_value(game_rolls[current_roll])
 
         # Spare (Player knocks down all the pins in the second turn of his roll):
-        # - Means the current frame value is the spare's value + the next roll's value, remove the previous first roll's score (since it added before check)
+        # - Means the current frame value is the spare's value + the next roll's value
+        # - Remove the previous roll's score (since it added in the previous roll check)
         if game_rolls[current_roll] == '/':
             result += get_value(game_rolls[current_roll + 1]) - get_value(game_rolls[current_roll - 1])
 
