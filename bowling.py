@@ -1,4 +1,5 @@
 
+
 # Returns the score value of the given single character string
 # Valid characters:
 #   - x, X, / = 10 points
@@ -14,78 +15,39 @@ def get_value(char):
             return 0
         raise ValueError()
 
-# Calculates the game score:
-# game: a list which contains single character strings
-def score(game):
-    result, frame = 0, 1
-    in_first_half = True
-
-    for i in range(len(game)):
-        if game[i] == '/':
-            result += 10 - get_value(game[i-1])
-        else:
-            result += get_value(game[i])
-
-        if frame < 10 and get_value(game[i]) == 10:
-            if game[i] == '/':
-                result += get_value(game[i+1])
-
-            elif game[i].lower() == 'x':
-                result += get_value(game[i+1])
-
-                if game[i+2] == '/':
-                    result += 10 - get_value(game[i+1])
-                else:
-                    result += get_value(game[i+2])
-
-        if not in_first_half:
-            frame += 1
-
-        if game[i].lower() == 'x':
-            in_first_half = True
-            frame += 1
-        else:
-            in_first_half = not in_first_half
-
-    return result
-
-
-"""
-
 
 # Calculates the game score:
-# game: a list which contains single character strings
-def score(game):
-    result, frame = 0, 0, 1
+# game_rolls: a list which contains single character strings
+def score(game_rolls):
+    result, current_frame, current_roll = 0, 1, 0
     in_first_half = True
+    frame_limit = 10
 
-    for i in range(len(game)):
-        if game[i] == '/':
-            result += 10 - result += 10 - get_value(game[i - 1])
-        else:
-            result += get_value(game[i])
+    while current_frame <= frame_limit:
+        result += get_value(game_rolls[current_roll])
 
-        if frame < 10 and get_value(game[i]) == 10:
-            if game[i] == '/':
-                result += get_value(game[i+1])
+        # Spare (Player knocks down all the pins in the second turn of his roll):
+        # - Means the current frame value is the spare's value + the next roll's value, remove the previous first roll's score (since it added before check)
+        if game_rolls[current_roll] == '/':
+            result += get_value(game_rolls[current_roll + 1]) - get_value(game_rolls[current_roll - 1])
 
-            elif game[i].lower() == "x":
-                result += get_value(game[i+1])
+        # Strike (Player knocks down all the pins in the first turn of his frame, the frame is over since there are no more pins):
+        # - Add the next 2 rolls' values to the score:
+        elif game_rolls[current_roll].lower() == "x":
+            result += get_value(game_rolls[current_roll + 2])
 
-                if game[i+2] == '/':
-                    result += 10 - get_value(game[i+1])
-                else:
-                    result += get_value(game[i+2])
+            # If the second roll after the strike is a spare, only add the spare's value:
+            if game_rolls[current_roll + 2] != "/":
+                result += get_value(game_rolls[current_roll + 1])
+            in_first_half = False
 
-
+        # Change frame:
+        # - The player has 2 rolls (in a frame) to knock down as many pins as he can:
         if not in_first_half:
-            frame += 1
-
-        in_first_half = not in_first_half
-
-        if game[i] == 'X' or game[i] == 'x':
             in_first_half = True
-            frame += 1
+            current_frame += 1
+        else:
+            in_first_half = False
 
+        current_roll += 1
     return result
-"""
